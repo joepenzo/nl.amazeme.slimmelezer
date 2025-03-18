@@ -45,7 +45,6 @@ class SlimmeLezerDevice extends Device
     this.setAvailable();
 
     await this.setSettings({
-      // Set the IP Address in the settings
       ipaddress: address,
     });
 
@@ -53,15 +52,20 @@ class SlimmeLezerDevice extends Device
 
     // Create a timer to get the data every 5000ms
     this.timer = setInterval(async () => 
-    {
-      // Some code is commented out for now as they are not visualized, 
-      // might be adding in the future
-        try {
-            // get the power consumed
-            self.meterData.PowerConsumed = await this.GetData(apiAddress + 'power_consumed');
-            if (!this.getAvailable()) {
-                this.setAvailable();
-            }
+      {
+          try {
+              // get the power consumed
+              self.meterData.PowerConsumed = await this.GetData(apiAddress + 'power_consumed');
+              if (!this.getAvailable()) {
+                  this.setAvailable();
+              }
+              // ... rest of the existing timer code ...
+          } catch (error) {
+              if (this.getAvailable()) {
+                  this.setUnavailable('Connection lost with SlimmeLezer');
+              }
+          }
+      }, 5000);
       // self.meterData.PowerConsumedPhase1 = await this.GetData(apiAddress + 'power_consumed_phase_1');
       // self.meterData.PowerConsumedPhase2 = await this.GetData(apiAddress + 'power_consumed_phase_2');
       // self.meterData.PowerConsumedPhase3 = await this.GetData(apiAddress + 'power_consumed_phase_3');
