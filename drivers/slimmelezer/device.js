@@ -41,10 +41,11 @@ class SlimmeLezerDevice extends Device
     var address = this.getData().address;
     var apiAddress = 'http://'+ address + '/sensor/';
 
-    // Set initial availability
-    this.setAvailable();
-
+     // Set initial availability
+     this.setAvailable();
+     
     await this.setSettings({
+      // Set the IP Address in the settings
       ipaddress: address,
     });
 
@@ -52,60 +53,65 @@ class SlimmeLezerDevice extends Device
 
     // Create a timer to get the data every 5000ms
     this.timer = setInterval(async () => 
-      {
-          try {
-              // get the power consumed
-              self.meterData.PowerConsumed = await this.GetData(apiAddress + 'power_consumed');
-              if (!this.getAvailable()) {
-                  this.setAvailable();
-              }
-              // ... rest of the existing timer code ...
-          } catch (error) {
-              if (this.getAvailable()) {
-                  this.setUnavailable('Connection lost with SlimmeLezer');
-              }
+    {
+      // Some code is commented out for now as they are not visualized, 
+      // might be adding in the future
+
+      try {
+        // get the power consumed
+        self.meterData.PowerConsumed = await this.GetData(apiAddress + 'power_consumed');
+        if (!this.getAvailable()) {
+            this.setAvailable();
+        }
+        // get the power consumed
+        
+        self.meterData.PowerConsumed = await this.GetData(apiAddress + 'power_consumed');
+        // self.meterData.PowerConsumedPhase1 = await this.GetData(apiAddress + 'power_consumed_phase_1');
+        // self.meterData.PowerConsumedPhase2 = await this.GetData(apiAddress + 'power_consumed_phase_2');
+        // self.meterData.PowerConsumedPhase3 = await this.GetData(apiAddress + 'power_consumed_phase_3');
+        await self.Delay(100);
+        
+        // get the power produced
+        self.meterData.PowerProduced = await this.GetData(apiAddress + 'power_produced');
+        // self.meterData.PowerProducedPhase1 = await this.GetData(apiAddress + 'power_produced_phase_1');
+        // self.meterData.PowerProducedPhase2 = await this.GetData(apiAddress + 'power_produced_phase_2');
+        // self.meterData.PowerProducedPhase3 = await this.GetData(apiAddress + 'power_produced_phase_3');
+        await self.Delay(100);
+
+        // get the gas meter
+        self.meterData.GasConsumed = await this.GetData(apiAddress + 'gas_consumed');
+        self.meterData.GasConsumedBe = await this.GetData(apiAddress + 'gas_consumed_belgium');
+        await self.Delay(100);
+
+        // Get the total energy consumed
+        self.meterData.EnergyConsumedL = await this.GetData(apiAddress + 'energy_consumed_luxembourg');
+        self.meterData.EnergyConsumedT1 = await this.GetData(apiAddress + 'energy_consumed_tariff_1');
+        self.meterData.EnergyConsumedT2 = await this.GetData(apiAddress + 'energy_consumed_tariff_2');
+        await self.Delay(100);
+
+        // Get the total energy produced
+        self.meterData.EnergyProducedL = await this.GetData(apiAddress + 'energy_produced_luxembourg');
+        self.meterData.EnergyProducedT1 = await this.GetData(apiAddress + 'energy_produced_tariff_1');
+        self.meterData.EnergyProducedT2 = await this.GetData(apiAddress + 'energy_produced_tariff_2');
+        await self.Delay(100);
+
+        // Get the total voltage
+        //self.meterData.VoltagePhase1 = await this.GetData(apiAddress + 'voltage_phase_1');
+        //self.meterData.VoltagePhase2 = await this.GetData(apiAddress + 'voltage_phase_2');
+        //self.meterData.VoltagePhase3 = await this.GetData(apiAddress + 'voltage_phase_3');
+
+        // get the currents
+        //self.meterData.CurrentPhase1 = await this.GetData(apiAddress + 'current_phase_1');
+        //self.meterData.CurrentPhase2 = await this.GetData(apiAddress + 'current_phase_2');
+        //self.meterData.CurrentPhase3 = await this.GetData(apiAddress + 'current_phase_3');
+
+        this.UpdateCapabilites();
+        
+        } catch (error) {
+          if (this.getAvailable()) {
+              this.setUnavailable('Connection lost with SlimmeLezer');
           }
-      }, 5000);
-      // self.meterData.PowerConsumedPhase1 = await this.GetData(apiAddress + 'power_consumed_phase_1');
-      // self.meterData.PowerConsumedPhase2 = await this.GetData(apiAddress + 'power_consumed_phase_2');
-      // self.meterData.PowerConsumedPhase3 = await this.GetData(apiAddress + 'power_consumed_phase_3');
-      await self.Delay(100);
-      
-      // get the power produced
-      self.meterData.PowerProduced = await this.GetData(apiAddress + 'power_produced');
-      // self.meterData.PowerProducedPhase1 = await this.GetData(apiAddress + 'power_produced_phase_1');
-      // self.meterData.PowerProducedPhase2 = await this.GetData(apiAddress + 'power_produced_phase_2');
-      // self.meterData.PowerProducedPhase3 = await this.GetData(apiAddress + 'power_produced_phase_3');
-      await self.Delay(100);
-
-      // get the gas meter
-      self.meterData.GasConsumed = await this.GetData(apiAddress + 'gas_consumed');
-      self.meterData.GasConsumedBe = await this.GetData(apiAddress + 'gas_consumed_belgium');
-      await self.Delay(100);
-
-      // Get the total energy consumed
-      self.meterData.EnergyConsumedL = await this.GetData(apiAddress + 'energy_consumed_luxembourg');
-      self.meterData.EnergyConsumedT1 = await this.GetData(apiAddress + 'energy_consumed_tariff_1');
-      self.meterData.EnergyConsumedT2 = await this.GetData(apiAddress + 'energy_consumed_tariff_2');
-      await self.Delay(100);
-
-      // Get the total energy produced
-      self.meterData.EnergyProducedL = await this.GetData(apiAddress + 'energy_produced_luxembourg');
-      self.meterData.EnergyProducedT1 = await this.GetData(apiAddress + 'energy_produced_tariff_1');
-      self.meterData.EnergyProducedT2 = await this.GetData(apiAddress + 'energy_produced_tariff_2');
-      await self.Delay(100);
-
-      // Get the total voltage
-      //self.meterData.VoltagePhase1 = await this.GetData(apiAddress + 'voltage_phase_1');
-      //self.meterData.VoltagePhase2 = await this.GetData(apiAddress + 'voltage_phase_2');
-      //self.meterData.VoltagePhase3 = await this.GetData(apiAddress + 'voltage_phase_3');
-
-      // get the currents
-      //self.meterData.CurrentPhase1 = await this.GetData(apiAddress + 'current_phase_1');
-      //self.meterData.CurrentPhase2 = await this.GetData(apiAddress + 'current_phase_2');
-      //self.meterData.CurrentPhase3 = await this.GetData(apiAddress + 'current_phase_3');
-
-      this.UpdateCapabilites();
+      }
     }, 5000);
 
   }
