@@ -41,6 +41,9 @@ class SlimmeLezerDevice extends Device
     var address = this.getData().address;
     var apiAddress = 'http://'+ address + '/sensor/';
 
+    // Set initial availability
+    this.setAvailable();
+
     await this.setSettings({
       // Set the IP Address in the settings
       ipaddress: address,
@@ -53,9 +56,12 @@ class SlimmeLezerDevice extends Device
     {
       // Some code is commented out for now as they are not visualized, 
       // might be adding in the future
-
-      // get the power consumed
-      self.meterData.PowerConsumed = await this.GetData(apiAddress + 'power_consumed');
+        try {
+            // get the power consumed
+            self.meterData.PowerConsumed = await this.GetData(apiAddress + 'power_consumed');
+            if (!this.getAvailable()) {
+                this.setAvailable();
+            }
       // self.meterData.PowerConsumedPhase1 = await this.GetData(apiAddress + 'power_consumed_phase_1');
       // self.meterData.PowerConsumedPhase2 = await this.GetData(apiAddress + 'power_consumed_phase_2');
       // self.meterData.PowerConsumedPhase3 = await this.GetData(apiAddress + 'power_consumed_phase_3');
